@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CherryFlash · shoot it before it's a memory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Figtree:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0b09;
+      --bg-deep: #0a0908;
+      --bg-card: #100e0c;
+      --bg-panel: #131109;
+      --text: #f0ebe2;
+      --text-mid: #7a7068;
+      --text-dim: #4a4540;
+      --text-ghost: #2e2b26;
+      --pink: #d4917f;
+      --pink-pale: rgba(212,145,127,0.18);
+      --border: rgba(255,255,255,0.06);
+      --border-soft: rgba(255,255,255,0.04);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Figtree', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(13,11,9,0.92); backdrop-filter: blur(16px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 13px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 24px; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: #6b6258; }
+    .nav-links span { cursor: pointer; transition: color 0.2s; }
+    .nav-links span:hover { color: var(--text); }
+    .nav-wordmark { font-size: 12px; letter-spacing: 0.6em; text-transform: uppercase; color: var(--text); }
+
+    /* HERO */
+    .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; min-height: 88vh; border-bottom: 0.5px solid var(--border); }
+    .hero-left { position: relative; overflow: hidden; background: #12100d; }
+    .hero-left img { width: 100%; height: 100%; object-fit: cover; object-position: center top; opacity: 0.82; filter: saturate(0.6) contrast(1.08); }
+    .grain { position: absolute; inset: 0; opacity: 0.2; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 150px; }
+    .pink-tint { position: absolute; inset: 0; background: rgba(210,140,130,0.06); mix-blend-mode: screen; pointer-events: none; }
+    .hero-badge { position: absolute; top: 18px; left: 18px; border: 0.5px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(255,255,255,0.5); padding: 5px 13px; border-radius: 100px; }
+    .flash-dot { position: absolute; top: 18px; right: 18px; width: 7px; height: 7px; border-radius: 50%; background: #e8c4bb; animation: blink 2.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:0.25} 50%{opacity:1} }
+    .hero-stamp { position: absolute; bottom: 20px; left: 20px; font-size: 9px; letter-spacing: 0.12em; color: rgba(232,196,187,0.45); font-family: monospace; }
+    .hero-right { display: flex; flex-direction: column; justify-content: center; padding: 52px 44px; background: var(--bg); border-left: 0.5px solid var(--border); }
+    .eyebrow { font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase; color: #524942; margin-bottom: 20px; }
+    .hero-h1 { font-family: 'IM Fell English', Georgia, serif; font-style: italic; font-size: 3.8rem; line-height: 1.02; color: var(--text); margin-bottom: 8px; }
+    .hero-h1 .pk { color: var(--pink); }
+    .hero-sub { font-size: 13px; line-height: 1.95; color: #5a5248; max-width: 300px; margin: 18px 0 28px; }
+    .hero-cta { font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--pink); cursor: pointer; transition: color 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .hero-cta:hover { color: var(--text); }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+    .tag { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #3e3830; border: 0.5px solid var(--border); padding: 5px 12px; border-radius: 100px; }
+
+    /* MOOD STRIP */
+    .mood-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 0.5px solid var(--border); height: 210px; }
+    .mood-cell { position: relative; overflow: hidden; cursor: pointer; }
+    .mood-cell img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.5) contrast(1.1); opacity: 0.7; transition: filter 0.5s, opacity 0.4s; }
+    .mood-cell:hover img { filter: saturate(0.78) contrast(1.05); opacity: 0.88; }
+    .mood-cell-grain { position: absolute; inset: 0; opacity: 0.18; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 120px; }
+    .mood-label { position: absolute; bottom: 12px; left: 14px; font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.32); }
+    .mood-cell + .mood-cell { border-left: 0.5px solid var(--border); }
+
+    /* PRODUCTS */
+    .products-section { background: var(--bg); padding: 64px 32px; border-bottom: 0.5px solid var(--border); }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 38px; }
+    .section-h2 { font-family: 'IM Fell English', Georgia, serif; font-style: italic; font-size: 2.6rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.05; }
+    .section-meta { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #3e3830; text-align: right; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+
+    .card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform 0.4s ease, border-color 0.3s; }
+    .card:hover { transform: translateY(-4px); border-color: rgba(212,145,127,0.22); }
+    .card-img { position: relative; height: 252px; overflow: hidden; background: #181310; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.5) contrast(1.12); opacity: 0.82; transition: transform 0.6s ease, filter 0.4s, opacity 0.3s; }
+    .card:hover .card-img img { transform: scale(1.06); filter: saturate(0.74) contrast(1.05); opacity: 0.9; }
+    .card-grain { position: absolute; inset: 0; opacity: 0.2; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 110px; }
+    .card-num { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); border: 0.5px solid rgba(255,255,255,0.1); font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.4); padding: 3px 9px; border-radius: 100px; }
+    .card-ts { position: absolute; bottom: 10px; left: 12px; font-size: 8.5px; letter-spacing: 0.1em; color: rgba(232,196,187,0.4); font-family: monospace; }
+    .card-body { padding: 15px 15px 17px; }
+    .card-tone { font-size: 8.5px; letter-spacing: 0.26em; text-transform: uppercase; color: #3e3830; margin-bottom: 5px; }
+    .card-name { font-size: 13.5px; letter-spacing: -0.02em; color: #d4c9b5; margin-bottom: 5px; }
+    .card-sub { font-size: 11.5px; line-height: 1.7; color: #4a4540; margin-bottom: 13px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 0.5px solid rgba(255,255,255,0.04); padding-top: 11px; }
+    .card-from { font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #3e3830; }
+    .card-price { font-size: 13px; color: var(--pink); }
+
+    /* JOURNAL / BLOG */
+    .blog-section { background: var(--bg-deep); padding: 64px 32px; border-bottom: 0.5px solid var(--border); }
+    .blog-intro { max-width: 380px; margin-bottom: 44px; }
+    .blog-intro p { font-size: 13px; line-height: 1.9; color: var(--text-dim); margin-top: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+
+    .review-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform 0.4s, border-color 0.3s; }
+    .review-card:hover { transform: translateY(-3px); border-color: rgba(212,145,127,0.18); }
+    .review-img { position: relative; height: 200px; overflow: hidden; background: #181310; }
+    .review-img img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.55) contrast(1.1); opacity: 0.78; transition: transform 0.6s, filter 0.4s; }
+    .review-card:hover .review-img img { transform: scale(1.05); filter: saturate(0.78) contrast(1.05); }
+    .review-img-grain { position: absolute; inset: 0; opacity: 0.18; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 110px; }
+    .review-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 0.5px solid rgba(255,255,255,0.08); font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.38); padding: 3px 10px; border-radius: 100px; }
+    .review-body { padding: 18px 18px 20px; }
+    .review-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .review-author { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pink); }
+    .review-stars { display: flex; gap: 3px; }
+    .star { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); opacity: 0.85; }
+    .review-quote { font-family: 'IM Fell English', Georgia, serif; font-style: italic; font-size: 14.5px; line-height: 1.75; color: #b8ad9e; margin-bottom: 10px; }
+    .review-product { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #3a3530; }
+    .review-date { font-size: 9px; letter-spacing: 0.12em; color: #2e2b26; font-family: monospace; }
+
+    /* CLOSING */
+    .closing { background: var(--bg); padding: 80px 32px; text-align: center; border-bottom: 0.5px solid var(--border); }
+    .closing-label { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: #3e3830; margin-bottom: 18px; }
+    .closing-h2 { font-family: 'IM Fell English', Georgia, serif; font-style: italic; font-size: 2.8rem; letter-spacing: -0.02em; color: var(--text); line-height: 1.1; margin-bottom: 18px; }
+    .closing-body { font-size: 13px; line-height: 1.95; color: #4a4540; max-width: 380px; margin: 0 auto 28px; }
+    .closing-cta { display: inline-block; font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--pink); border-bottom: 0.5px solid rgba(212,145,127,0.35); padding-bottom: 2px; cursor: pointer; transition: color 0.2s; }
+    .closing-cta:hover { color: var(--text); }
+
+    footer { padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-top: 0.5px solid var(--border); }
+    .footer-copy { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #2a2724; }
+
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { min-height: 55vw; }
+      .hero-right { padding: 40px 28px; }
+      .hero-h1 { font-size: 2.8rem; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .grid-3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .mood-strip { height: 160px; }
+    }
+    @media (max-width: 560px) {
+      .grid-4, .grid-3 { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .section-meta { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-links"><span>collection</span><span>mood archive</span></div>
+    <div class="nav-wordmark">cherryflash</div>
+    <div class="nav-links"><span>journal</span><span>bag — 0</span></div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <img src="https://i.pinimg.com/736x/8f/8f/5d/8f8f5da521e9bc9dba5303d295216e93.jpg" />
+      <div class="grain"></div>
+      <div class="pink-tint"></div>
+      <div class="hero-badge">cherryflash · 체리플래시</div>
+      <div class="flash-dot"></div>
+      <div class="hero-stamp">2025:08:14 19:32 ✦ flash on</div>
+    </div>
+    <div class="hero-right">
+      <p class="eyebrow">cherryflash · ss.mmxxvi</p>
+      <h1 class="hero-h1">shoot it<br><span class="pk">before</span><br>it's a memory</h1>
+      <p class="hero-sub">for the moments that felt too good to lose — the blurry flash, the long afternoon, the people you love most at the table across from you.</p>
+      <p class="hero-cta">explore the collection →</p>
+      <div class="hero-tags">
+        <span class="tag">soft flash</span>
+        <span class="tag">mirror selfies</span>
+        <span class="tag">film mood</span>
+        <span class="tag">candid</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOOD STRIP -->
+  <div class="mood-strip">
+    <div class="mood-cell">
+      <img src="https://i.pinimg.com/1200x/9c/a9/e2/9ca9e28e77c51a9b04c29bb3e2014c2a.jpg" />
+      <div class="mood-cell-grain"></div>
+      <div class="mood-label">for your best friends</div>
+    </div>
+    <div class="mood-cell">
+      <img src="https://i.pinimg.com/736x/00/0c/aa/000caaad59c892278a1a1df4fcfd04c9.jpg" />
+      <div class="mood-cell-grain"></div>
+      <div class="mood-label">soft portraits</div>
+    </div>
+    <div class="mood-cell">
+      <img src="https://i.pinimg.com/736x/d8/1b/fa/d81bfad0a5996a99be1abdf0b06db301.jpg" />
+      <div class="mood-cell-grain"></div>
+      <div class="mood-label">little moments</div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2 class="section-h2">objects for<br>little memories</h2>
+      <p class="section-meta">ss.mmxxvi · 4 pieces</p>
+    </div>
+    <div class="grid-4">
+      <article class="card">
+        <div class="card-img">
+          <img src="https://i.pinimg.com/736x/c3/59/fd/c359fd93d433b8f9117a97d48543c7fa.jpg" />
+          <div class="card-grain"></div>
+          <div class="card-num">01</div>
+          <div class="card-ts">2025:08:14 19:32</div>
+        </div>
+        <div class="card-body">
+          <p class="card-tone">for date nights</p>
+          <h3 class="card-name">rose memory camera</h3>
+          <p class="card-sub">soft flash, mirror selfies, late afternoon golden hour.</p>
+          <div class="card-footer"><span class="card-from">from</span><span class="card-price">₩14,000</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-img">
+          <img src="https://i.pinimg.com/736x/ba/ef/ab/baefab97cc610c395e7b56e99a6fcc5d.jpg" />
+          <div class="card-grain"></div>
+          <div class="card-num">02</div>
+          <div class="card-ts">2025:03:29 14:11</div>
+        </div>
+        <div class="card-body">
+          <p class="card-tone">for city walks</p>
+          <h3 class="card-name">silver story camera</h3>
+          <p class="card-sub">clean vintage mood with a quiet, polished finish.</p>
+          <div class="card-footer"><span class="card-from">from</span><span class="card-price">₩14,000</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-img">
+          <img src="https://i.pinimg.com/736x/f6/25/5d/f6255d93c243c182f4cd90bbdf4ef70e.jpg" />
+          <div class="card-grain"></div>
+          <div class="card-num">03</div>
+          <div class="card-ts">2024:11:02 21:08</div>
+        </div>
+        <div class="card-body">
+          <p class="card-tone">for girls' day out</p>
+          <h3 class="card-name">old iphone mood set</h3>
+          <p class="card-sub">candid, messy, real — like stories you replay later.</p>
+          <div class="card-footer"><span class="card-from">from</span><span class="card-price">₩10,000</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-img">
+          <img src="https://i.pinimg.com/736x/d0/35/2f/d0352f1325274e6592bc3c2bef8c3c1c.jpg" />
+          <div class="card-grain"></div>
+          <div class="card-num">04</div>
+          <div class="card-ts">2025:05:18 12:44</div>
+        </div>
+        <div class="card-body">
+          <p class="card-tone">for soft weekends</p>
+          <h3 class="card-name">picnic memory set</h3>
+          <p class="card-sub">tiny props and soft details for prettier moments.</p>
+          <div class="card-footer"><span class="card-from">from</span><span class="card-price">₩6,000</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- BLOG / REVIEWS -->
+  <section class="blog-section">
+    <div class="section-header">
+      <div class="blog-intro">
+        <h2 class="section-h2">from the<br>cherry girls</h2>
+        <p>real moments, real cameras, real memories — shared by the people who shot them.</p>
+      </div>
+      <p class="section-meta">mood journal · vol. i</p>
+    </div>
+    <div class="grid-3">
+
+      <article class="review-card">
+        <div class="review-img">
+          <img src="https://i.pinimg.com/1200x/3d/37/c9/3d37c9907669a6a74b452b8e000b895c.jpg" />
+          <div class="review-img-grain"></div>
+          <div class="review-tag">rose memory cam</div>
+        </div>
+        <div class="review-body">
+          <div class="review-meta">
+            <span class="review-author">@sohee.film</span>
+            <div class="review-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          </div>
+          <p class="review-quote">"i brought this to my friend's birthday and the photos came out so dreamy. everyone kept asking what camera i used. it's the vibe."</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+            <span class="review-product">rose memory camera</span>
+            <span class="review-date">2025:09:03</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="review-img">
+          <img src="https://i.pinimg.com/736x/ec/3a/f4/ec3af4d6a1832b356aa7afed17b33b0d.jpg" />
+          <div class="review-img-grain"></div>
+          <div class="review-tag">picnic memory set</div>
+        </div>
+        <div class="review-body">
+          <div class="review-meta">
+            <span class="review-author">@mina.moments</span>
+            <div class="review-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          </div>
+          <p class="review-quote">"the picnic set made our whole afternoon feel like a editorial shoot. the props are so cute and the photos have this soft grainy quality i'm obsessed with."</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+            <span class="review-product">picnic memory set</span>
+            <span class="review-date">2025:06:21</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="review-card">
+        <div class="review-img">
+          <img src="https://i.pinimg.com/1200x/50/07/64/500764277e591425d1e66b4e98568399.jpg" />
+          <div class="review-img-grain"></div>
+          <div class="review-tag">silver story cam</div>
+        </div>
+        <div class="review-body">
+          <div class="review-meta">
+            <span class="review-author">@yurie.diary</span>
+            <div class="review-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+          </div>
+          <p class="review-quote">"took this to seoul and shot an entire roll of just street cafes and my friends laughing. it's the camera that makes everything look like a memory already."</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+            <span class="review-product">silver story camera</span>
+            <span class="review-date">2025:04:12</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <p class="closing-label">the mood, in short</p>
+    <h2 class="closing-h2">more than renting.<br>it's a whole feeling.</h2>
+    <p class="closing-body">not techy. not cold. just pretty. cherryflash is for people who care about atmosphere, friendship photos, soft flash, and the little details that make a day feel special.</p>
+    <span class="closing-cta">shop the collection →</span>
+  </section>
+
+  <footer>
+    <span class="footer-copy">© mmxxvi cherryflash · 체리플래시</span>
+    <span class="footer-copy">서울 · seoul</span>
+  </footer>
+
+</body>
+</html>
